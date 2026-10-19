@@ -1,0 +1,17 @@
+# Other companies' app APKs pulled during backup: large (some >100 MB) and not ours to publish
+backup/*/apks/
+
+# Calm signing key: keep it local (needed for updates to install over the existing app)
+launcher/calm.keystore
+
+# Build output (rebuild with launcher/build.sh)
+launcher/build/
+launcher/calm.apk
+launcher/calm.apk.idsig
+
+.DS_Store
+
+# Personal / device-specific: kept locally, not published
+backup/
+screens/
+changes.log

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mi_key_label">Calm remote buttons</string>
+    <string name="mi_key_desc">Remaps the remote\'s Mi and Prime Video buttons. It only sees those two buttons.</string>
+</resources>
