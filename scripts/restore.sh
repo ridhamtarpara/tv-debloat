@@ -57,6 +57,10 @@ else
       setting)  # f1=ns f2=key f3=old value
         if [ "$f3" = null ] || [ -z "$f3" ]; then run shell settings delete "$f1" "$f2"
         else run shell settings put "$f1" "$f2" "$f3"; fi ;;
+      grant)    run shell pm revoke "$f1" "$f2" ;;                # f1=pkg f2=permission
+      prop)     # f1=property f2=old value ("-" = was unset)
+        if [ "$f2" = "-" ]; then run shell setprop "$f1" '""'; else run shell setprop "$f1" "$f2"; fi ;;
+      logsize)  run shell logcat -b "$f1" -G "$f2" ;;                # f1=log buffer f2=old size
       home)     # f1=new home f2=previous home
         if [ -n "$f2" ] && [ "$f2" != "-" ]; then
           run shell cmd role add-role-holder android.app.role.HOME "${f2%%/*}" 0

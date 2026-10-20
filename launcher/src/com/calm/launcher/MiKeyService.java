@@ -23,12 +23,17 @@ public class MiKeyService extends AccessibilityService {
         REMAP.put(KeyEvent.KEYCODE_BUTTON_4, "com.google.android.youtube.tv"); // Prime Video button -> YouTube
     }
 
+    // Key filtering costs held volume buttons their auto-repeat; this puts it back (see the class).
+    private VolumeHoldWatcher volumeHold;
+
     @Override
     protected void onServiceConnected() {
         AccessibilityServiceInfo info = getServiceInfo();
         info.eventTypes = 0; // keys only; no UI events, no window content
         info.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
         setServiceInfo(info);
+        volumeHold = new VolumeHoldWatcher(this);
+        volumeHold.start();
     }
 
     @Override
@@ -60,4 +65,10 @@ public class MiKeyService extends AccessibilityService {
 
     @Override
     public void onInterrupt() {}
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (volumeHold != null) volumeHold.stop();
+        return super.onUnbind(intent);
+    }
 }

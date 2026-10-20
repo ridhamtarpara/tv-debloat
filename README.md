@@ -49,6 +49,22 @@ and each one is recorded in `changes.log`, which the restore script reads in rev
   `adb -s 192.168.1.3:5555 shell settings put secure enabled_accessibility_services com.calm.launcher/com.calm.launcher.MiKeyService`.
   Normal memory pressure doesn't cause this.
 
+### Press-and-hold volume
+Key filtering (needed for the Mi/Prime remaps) makes Android handle volume keys inside the accessibility layer,
+which drops the auto-repeat it normally adds while a button is held, so a held button stepped only once. The
+remote itself sends just one press and one release per hold. Calm restores the repeat in `VolumeHoldWatcher.java`:
+- It follows the window manager's own press/release log lines (`interceptKeyTi keyCode=24/25 down=true/false`),
+  which needs `READ_LOGS` (granted over ADB, logged, and revoked by `restore.sh`).
+- After 400 ms of holding it changes the volume by 2 levels every 100 ms (about 0 → 100 in 5 s) and stops on release.
+  The TV's audio stack applies only about 12 changes a second, so anything faster queued up and kept changing
+  the volume after release.
+- Each volume change makes the audio stack log dozens of lines into the same `main` log buffer. At the stock
+  256 KB a hold wrapped it in under a second and the release line got lost, so:
+  - `persist.log.tag.APM_AudioPolicyEngine=W` quiets the noisiest audio tag (about 5x less log per step).
+  - Calm enlarges the `main` buffer to 2 MB every time it starts (ADB can't make that survive a reboot).
+  Both are logged and reverted by `restore.sh`.
+- Single presses and Xiaomi's double-press-to-mute are untouched.
+
 Settings: the three animation scales went from 1.0 to 0.5.
 Kept on request: Mi TV+, Xiaomi updates, Google Assistant, Chromecast, Google TV/Play Movies.
 

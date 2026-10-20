@@ -4,6 +4,7 @@
 #   tv.sh disable <pkg>...            pm disable-user (denylist-checked, logged)
 #   tv.sh enable <pkg>...             pm enable (logged)
 #   tv.sh setting <ns> <key> <val>    settings put, logging the old value
+#   tv.sh grant <pkg> <permission>    pm grant (logged; restore.sh revokes it)
 #   tv.sh health                      HOME keypress + crash buffer check
 set -euo pipefail
 
@@ -62,6 +63,11 @@ case "$cmd" in
     "${A[@]}" shell settings put "$ns" "$key" "$val"
     printf '%s\tsetting\t%s\t%s\t%s\t%s\n' "$(ts)" "$ns" "$key" "$old" "$val" >> "$LOG"
     echo "$ns/$key: $old -> $val"
+    ;;
+  grant)  # tv.sh grant <pkg> <permission>
+    "${A[@]}" shell pm grant "$1" "$2"
+    printf '%s\tgrant\t%s\t%s\n' "$(ts)" "$1" "$2" >> "$LOG"
+    echo "granted $2 to $1"
     ;;
   home)  # log the previous HOME before changing it: tv.sh home <component>
     prev=$("${A[@]}" shell cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tr -d '\r' | tail -1)
